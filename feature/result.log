@@ -1,0 +1,216 @@
+================  start  ==================
+bucket create:
+>>> s3cmd mb s3://basebkt
+<<< Bucket 's3://basebkt/' created
+----------------------------
+list object:
+>>> s3cmd ls
+<<< 2017-07-04 08:38  s3://basebkt
+2017-07-04 06:29  s3://testbkt
+----------------------------
+put object:
+>>> s3cmd put ./testfile s3://basebkt/testfile
+<<< upload: './testfile' -> 's3://basebkt/testfile' (16 bytes in 0.2 seconds, 85.84 B/s) [1 of 1]
+----------------------------
+get object:
+>>> s3cmd get -f s3://basebkt/testfile ./testfile.download
+<<< download: 's3://basebkt/testfile' -> './testfile.download' (16 bytes in 0.1 seconds, 142.83 B/s)
+----------------------------
+copy object:
+>>> s3cmd cp s3://basebkt/testfile s3://basebkt/copyfolder/testfile
+<<< remote copy: 's3://basebkt/testfile' -> 's3://basebkt/copyfolder/testfile'
+----------------------------
+move object:
+>>> s3cmd mv s3://basebkt/testfile s3://basebkt/movefolder/testfile
+<<< move: 's3://basebkt/testfile' -> 's3://basebkt/movefolder/testfile'
+----------------------------
+list all object:
+>>> s3cmd la s3://basebkt
+<<<                        DIR   s3://basebkt/copyfolder/
+                       DIR   s3://basebkt/movefolder/
+
+
+----------------------------
+display disk usage:
+>>> s3cmd du s3://basebkt
+<<< 32       2 objects s3://basebkt/
+----------------------------
+display info:
+>>> s3cmd info s3://basebkt
+<<< s3://basebkt/ (bucket):
+   Location:  cn-bj-1
+   Payer:     none
+   Expiration Rule: none
+   policy:    none
+   cors:      none
+   ACL:       topo-dev: FULL_CONTROL
+----------------------------
+display info:
+>>> s3cmd info s3://basebkt/testfile
+<<< ERROR: S3 error: 404 (Not Found)
+----------------------------
+delete object:
+>>> s3cmd rm s3://basebkt/testfile
+<<< delete: 's3://basebkt/testfile'
+----------------------------
+remove bucket:
+>>> s3cmd rb -rf s3://basebkt
+<<< WARNING: Bucket is not empty. Removing all the objects from it first. This may take some time...
+delete: 's3://basebkt/copyfolder/testfile'
+delete: 's3://basebkt/movefolder/testfile'
+Bucket 's3://basebkt/' removed
+----------------------------
+Synchronize:
+>>> s3cmd mb s3://srcbkt
+<<< Bucket 's3://srcbkt/' created
+>>> s3cmd mb s3://destbkt
+<<< Bucket 's3://destbkt/' created
+>>> s3cmd put ./testfile s3://srcbkt/testfolder/testfile
+<<< upload: './testfile' -> 's3://srcbkt/testfolder/testfile' (10 bytes in 0.2 seconds, 56.18 B/s) [1 of 1]
+>>> s3cmd info s3://srcbkt/testfolder/testfile
+<<< s3://srcbkt/testfolder/testfile (object):
+   File size: 10
+   Last mod:  Tue, 04 Jul 2017 08:38:52 GMT
+   MIME type: text/plain
+   Storage:   STANDARD
+   MD5 sum:   273b856ec30b3770ed793b53a4b07704
+   SSE:       none
+   policy:    none
+   cors:      none
+   ACL:       topo-dev: FULL_CONTROL
+>>> s3cmd sync s3://srcbkt/testfolder s3://destbkt
+<<< Summary: 1 source files to copy, 0 files at destination to delete
+remote copy: 's3://srcbkt/testfolder/testfile' -> 's3://destbkt/testfolder/testfile'
+Done. Copied 1 files in 1.0 seconds, 1.00 files/s.
+>>> s3cmd ls s3://destbkt/testfolder/
+<<< 2017-07-04 08:38        10   s3://destbkt/testfolder/testfile
+>>> s3cmd info s3://destbkt/testfolder/testfile
+<<< s3://destbkt/testfolder/testfile (object):
+   File size: 10
+   Last mod:  Tue, 04 Jul 2017 08:38:58 GMT
+   MIME type: text/plain
+   Storage:   STANDARD
+   MD5 sum:   273b856ec30b3770ed793b53a4b07704
+   SSE:       none
+   policy:    none
+   cors:      none
+   ACL:       topo-dev: FULL_CONTROL
+>>> s3cmd rb -rf s3://srcbkt
+<<< WARNING: Bucket is not empty. Removing all the objects from it first. This may take some time...
+delete: 's3://srcbkt/testfolder/testfile'
+Bucket 's3://srcbkt/' removed
+>>> s3cmd rb -rf s3://destbkt
+<<< WARNING: Bucket is not empty. Removing all the objects from it first. This may take some time...
+delete: 's3://destbkt/testfolder/testfile'
+Bucket 's3://destbkt/' removed
+----------------------------
+ACL:
+>>> s3cmd mb s3://aclbkt
+<<< Bucket 's3://aclbkt/' created
+>>> s3cmd put --acl-private ./testfile s3://aclbkt/testfile
+<<< upload: './testfile' -> 's3://aclbkt/testfile' (9 bytes in 0.2 seconds, 50.98 B/s) [1 of 1]
+>>> s3cmd info s3://aclbkt/testfile
+<<< s3://aclbkt/testfile (object):
+   File size: 9
+   Last mod:  Tue, 04 Jul 2017 08:39:00 GMT
+   MIME type: text/plain
+   Storage:   STANDARD
+   MD5 sum:   307e97f23e3245a9776043dbae6014ba
+   SSE:       none
+   policy:    none
+   cors:      none
+   ACL:       topo-dev: FULL_CONTROL
+>>> s3cmd setacl --acl-revoke=full_control:topo-dev s3://aclbkt/testfile
+<<< ERROR: S3 error: 400 (UnsupportedAclConfigurationException): The ACL configuration specified in the request is unsupported.
+>>> s3cmd info s3://aclbkt/testfile
+<<< s3://aclbkt/testfile (object):
+   File size: 9
+   Last mod:  Tue, 04 Jul 2017 08:39:00 GMT
+   MIME type: text/plain
+   Storage:   STANDARD
+   MD5 sum:   307e97f23e3245a9776043dbae6014ba
+   SSE:       none
+   policy:    none
+   cors:      none
+   ACL:       topo-dev: FULL_CONTROL
+>>> s3cmd setacl --acl-grant=read:topo-dev s3://aclbkt/testfile
+<<< ERROR: S3 error: 400 (UnsupportedAclConfigurationException): The ACL configuration specified in the request is unsupported.
+>>> s3cmd info s3://aclbkt/testfile
+<<< s3://aclbkt/testfile (object):
+   File size: 9
+   Last mod:  Tue, 04 Jul 2017 08:39:00 GMT
+   MIME type: text/plain
+   Storage:   STANDARD
+   MD5 sum:   307e97f23e3245a9776043dbae6014ba
+   SSE:       none
+   policy:    none
+   cors:      none
+   ACL:       topo-dev: FULL_CONTROL
+>>> s3cmd rb -rf s3://aclbkt
+<<< WARNING: Bucket is not empty. Removing all the objects from it first. This may take some time...
+delete: 's3://aclbkt/testfile'
+Bucket 's3://aclbkt/' removed
+----------------------------
+CORS:
+>>> s3cmd mb s3://corsbkt
+<<< Bucket 's3://corsbkt/' created
+>>> s3cmd info s3://corsbkt
+<<< s3://corsbkt/ (bucket):
+   Location:  cn-bj-1
+   Payer:     none
+   Expiration Rule: none
+   policy:    none
+   cors:      none
+   ACL:       topo-dev: FULL_CONTROL
+>>> s3cmd setcors ./corsfile s3://corsbkt
+<<< >>> s3cmd info s3://corsbkt
+<<< s3://corsbkt/ (bucket):
+   Location:  cn-bj-1
+   Payer:     none
+   Expiration Rule: none
+   policy:    none
+   cors:      <CORSConfiguration><CORSRule><ID></ID><AllowedMethod>GET</AllowedMethod><AllowedMethod>POST</AllowedMethod><AllowedMethod>PUT</AllowedMethod><AllowedOrigin>*</AllowedOrigin><AllowedHeader>*</AllowedHeader><MaxAgeSeconds>3000</MaxAgeSeconds></CORSRule></CORSConfiguration>
+   ACL:       topo-dev: FULL_CONTROL
+>>> s3cmd delcors s3://corsbkt
+<<< s3://corsbkt/: CORS deleted
+>>> s3cmd info s3://corsbkt
+<<< s3://corsbkt/ (bucket):
+   Location:  cn-bj-1
+   Payer:     none
+   Expiration Rule: none
+   policy:    none
+   cors:      none
+   ACL:       topo-dev: FULL_CONTROL
+>>> s3cmd rb -rf s3://corsbkt
+<<< Bucket 's3://corsbkt/' removed
+----------------------------
+Multipart:
+>>> s3cmd mb s3://mpbkt
+<<< Bucket 's3://mpbkt/' created
+>>> s3cmd multipart s3://mpbkt
+<<< s3://mpbkt/
+Initiated	Path	Id
+2017-07-04T08:39:16.094Z	s3://mpbkt/testfile	541fca3405bfb192c65246ae27bfa89be93e869fb3cbdb43
+>>> s3cmd listmp s3://mpbkt/testfile 541fca3405bfb192c65246ae27bfa89be93e869fb3cbdb43
+<<< LastModified			PartNumber	ETag	Size
+>>> s3cmd abortmp s3://mpbkt/testfile 541fca3405bfb192c65246ae27bfa89be93e869fb3cbdb43
+<<< s3://mpbkt/testfile
+>>> s3cmd put ./testfile s3://mpbkt
+<<< upload: './testfile' -> 's3://mpbkt/testfile' (300000000 bytes in 1750.1 seconds, 167.40 kB/s) [1 of 1]
+>>> s3cmd info s3://mpbkt/testfile
+<<< s3://mpbkt/testfile (object):
+   File size: 300000000
+   Last mod:  Tue, 04 Jul 2017 09:08:47 GMT
+   MIME type: application/octet-stream
+   Storage:   STANDARD
+   MD5 sum:   44b80c4c5709b89f3228619389b37582-20
+   SSE:       none
+   policy:    none
+   cors:      none
+   ACL:       topo-dev: FULL_CONTROL
+>>> s3cmd rb -rf s3://mpbkt
+<<< WARNING: Bucket is not empty. Removing all the objects from it first. This may take some time...
+delete: 's3://mpbkt/testfile'
+Bucket 's3://mpbkt/' removed
+----------------------------
+================   end   ==================

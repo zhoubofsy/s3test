@@ -1,0 +1,13 @@
+[default]
+access_key = Ltiakby8pAAbHMjpUr3L
+secret_key = qMTe5ibLW49iFDEHNKqspdnJ8pwaawA9GYrBXUYc
+default_mime_type = binary/octet-stream
+encoding = UTF-8
+host_base = los-cn-north-2.lecloudapis.com
+host_bucket = %(bucket).los-cn-north-2.lecloudapis.com
+multipart_chunk_size_mb = 15
+multipart_max_chunks = 10000
+recursive = False
+signature_v2 = False
+use_https = False
+use_mime_magic = True
