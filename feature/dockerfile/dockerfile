@@ -1,0 +1,14 @@
+FROM centos:7.3.1611
+
+MAINTAINER zhoub
+
+#RUN yum update -y
+#RUN yum install -y wget
+
+RUN curl https://bootstrap.pypa.io/get-pip.py > get-pip.py
+RUN python ./get-pip.py
+RUN pip install s3cmd
+
+ADD ./s3cfg /root/.s3cfg
+
+#RUN yum clean all
